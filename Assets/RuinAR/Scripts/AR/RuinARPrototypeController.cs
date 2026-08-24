@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using RuinAR.Core;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
@@ -8,6 +10,14 @@ namespace RuinAR.AR
 {
     public sealed class RuinARPrototypeController : MonoBehaviour
     {
+        private enum ExperienceStage
+        {
+            ChooseImage,
+            Analyzing,
+            Ready,
+            Placed
+        }
+
         private readonly List<ARRaycastHit> raycastHits = new();
         private ARRaycastManager raycastManager;
         private ARPlaneManager planeManager;
@@ -15,8 +25,12 @@ namespace RuinAR.AR
         private LocationServiceController locationController;
         private RuinSiteData site;
         private GameObject reconstruction;
+        private Texture2D selectedImage;
+        private string selectedImageName;
+        private ExperienceStage stage = ExperienceStage.ChooseImage;
+        private float analysisProgress;
         private EvidenceStatus? activeFilter;
-        private string message = "Bevæg telefonen langsomt, og tryk på en registreret flade.";
+        private string message = "Vælg et billede af den ruin, du vil undersøge.";
 
 #if UNITY_EDITOR
         private float desktopRotation;
@@ -40,7 +54,7 @@ namespace RuinAR.AR
 #if UNITY_EDITOR
             UpdateDesktopPreview();
 #endif
-            if (reconstruction != null || raycastManager == null)
+            if (stage != ExperienceStage.Ready || reconstruction != null || raycastManager == null)
                 return;
 
             if (!TryGetPointerRelease(out var screenPosition))
@@ -69,6 +83,7 @@ namespace RuinAR.AR
         private void PlaceAt(Pose pose)
         {
             reconstruction = ProceduralReconstructionFactory.CreatePrototype(pose);
+            stage = ExperienceStage.Placed;
             SetPlaneVisibility(false);
             ApplyFilter();
             message = "Demomodellen er placeret. Farverne viser dokumentationsniveau.";
@@ -92,6 +107,48 @@ namespace RuinAR.AR
 #endif
         }
 
+        private void ChooseImage()
+        {
+#if UNITY_EDITOR
+            var path = UnityEditor.EditorUtility.OpenFilePanelWithFilters(
+                "Vælg et billede af en ruin",
+                string.Empty,
+                new[] { "Billeder", "png,jpg,jpeg" });
+
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            var imageBytes = File.ReadAllBytes(path);
+            if (selectedImage != null)
+                Destroy(selectedImage);
+
+            selectedImage = new Texture2D(2, 2);
+            selectedImage.LoadImage(imageBytes);
+            selectedImageName = Path.GetFileName(path);
+            StartCoroutine(AnalyzeImage());
+#else
+            selectedImageName = "Kamerabillede";
+            StartCoroutine(AnalyzeImage());
+#endif
+        }
+
+        private IEnumerator AnalyzeImage()
+        {
+            stage = ExperienceStage.Analyzing;
+            analysisProgress = 0f;
+            message = $"Demoanalyse af {selectedImageName}";
+
+            const float duration = 3f;
+            while (analysisProgress < 1f)
+            {
+                analysisProgress = Mathf.Min(1f, analysisProgress + Time.unscaledDeltaTime / duration);
+                yield return null;
+            }
+
+            stage = ExperienceStage.Ready;
+            message = "Demoanalyse klar · Rekonstruktionen er ikke fagligt verificeret.";
+        }
+
 #if UNITY_EDITOR
         private void UpdateDesktopPreview()
         {
@@ -113,9 +170,16 @@ namespace RuinAR.AR
                 Destroy(reconstruction);
 
             reconstruction = null;
+            stage = ExperienceStage.Ready;
             activeFilter = null;
             SetPlaneVisibility(true);
-            message = "Tryk på en registreret flade for at placere modellen igen.";
+            message = "Rekonstruktionen er klar til ny placering.";
+        }
+
+        private void OnDestroy()
+        {
+            if (selectedImage != null)
+                Destroy(selectedImage);
         }
 
         private void SetPlaneVisibility(bool visible)
@@ -160,10 +224,43 @@ namespace RuinAR.AR
                 $"RuinAR · {site?.displayName}\n{site?.verificationLabel}\n{message}\n{locationController?.StatusMessage}", style);
 
             var y = 126f * scale;
-            if (reconstruction == null)
+            if (stage == ExperienceStage.ChooseImage)
             {
-                if (GUI.Button(new Rect(margin, y, panelWidth, buttonHeight), "Placér demo foran mig"))
+                if (GUI.Button(new Rect(margin, y, panelWidth, buttonHeight),
+#if UNITY_EDITOR
+                        "Vælg ruinbillede"
+#else
+                        "Analysér kamerabillede"
+#endif
+                    ))
+                    ChooseImage();
+                return;
+            }
+
+            if (stage == ExperienceStage.Analyzing)
+            {
+                GUI.Box(new Rect(margin, y, panelWidth, buttonHeight),
+                    $"Demoanalyse · {analysisProgress * 100f:0}%");
+                return;
+            }
+
+            if (stage == ExperienceStage.Ready)
+            {
+                if (selectedImage != null)
+                {
+                    var previewWidth = 112f * scale;
+                    var previewHeight = 72f * scale;
+                    GUI.DrawTexture(new Rect(margin, y, previewWidth, previewHeight), selectedImage,
+                        ScaleMode.ScaleToFit, false);
+                    if (GUI.Button(new Rect(margin + previewWidth + margin, y,
+                            panelWidth - previewWidth - margin, previewHeight), "Vis rekonstruktion"))
+                        PlaceInFrontOfCamera();
+                }
+                else if (GUI.Button(new Rect(margin, y, panelWidth, buttonHeight), "Vis rekonstruktion"))
+                {
                     PlaceInFrontOfCamera();
+                }
+
                 return;
             }
 
