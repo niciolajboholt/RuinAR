@@ -38,39 +38,44 @@ namespace RuinAR.Core
         {
             return new RuinSiteData
             {
-                id = "prototype-ruin",
-                displayName = "RuinAR forsøgsruin",
+                id = "kalo-slotsruin",
+                displayName = "Kalø Slotsruin",
+                latitude = 56.274636,
+                longitude = 10.466666,
                 elements = new List<RuinElementData>
                 {
                     new()
                     {
-                        id = "foundation",
-                        displayName = "Fundament",
+                        id = "surviving-masonry",
+                        displayName = "Synlige ruiner og grundplan",
                         evidenceStatus = EvidenceStatus.Documented,
                         confidence = 1f,
-                        sourceTitle = "Synlig ruin"
+                        sourceTitle = "Fortidsmindeguide og Naturstyrelsen"
                     },
                     new()
                     {
-                        id = "walls",
-                        displayName = "Murhøjde",
+                        id = "upper-walls",
+                        displayName = "Øvre mure og borgbygninger",
                         evidenceStatus = EvidenceStatus.Probable,
                         confidence = 0.65f,
-                        sourceTitle = "Prototypeantagelse"
+                        sourceTitle = "Kildebaseret prototypefortolkning"
                     },
                     new()
                     {
-                        id = "roof",
-                        displayName = "Tag",
+                        id = "roofs-and-battlements",
+                        displayName = "Tage og brystværn",
                         evidenceStatus = EvidenceStatus.AiGenerated,
                         confidence = 0.25f,
-                        sourceTitle = "AI-fortolkning uden faglig godkendelse"
+                        sourceTitle = "Visuel fortolkning uden faglig godkendelse"
                     }
                 },
                 timeline = new List<TimelineVersionData>
                 {
-                    new() { id = "original", displayName = "Oprindelig bygning", year = 1300 },
-                    new() { id = "present", displayName = "Ruinen i dag", year = 2026 }
+                    new() { id = "erik-menved", displayName = "Erik Menveds borg", year = 1313 },
+                    new() { id = "valdemar", displayName = "Valdemar Atterdags udbygning", year = 1343 },
+                    new() { id = "gustav-vasa", displayName = "Gustav Vasa på Kalø", year = 1519 },
+                    new() { id = "demolition", displayName = "Nedrivningen begynder", year = 1672 },
+                    new() { id = "present", displayName = "Kalø Slotsruin i dag", year = 2026 }
                 }
             };
         }
