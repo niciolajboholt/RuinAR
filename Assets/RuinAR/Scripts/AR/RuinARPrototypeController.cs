@@ -26,6 +26,7 @@ namespace RuinAR.AR
         private RuinSiteData site;
         private GameObject reconstruction;
         private Texture2D selectedImage;
+        private RuinVisualProfile imageProfile = RuinVisualProfile.Default;
         private string selectedImageName;
         private ExperienceStage stage = ExperienceStage.ChooseImage;
         private float analysisProgress;
@@ -82,7 +83,7 @@ namespace RuinAR.AR
 
         private void PlaceAt(Pose pose)
         {
-            reconstruction = ProceduralReconstructionFactory.CreatePrototype(pose);
+            reconstruction = ProceduralReconstructionFactory.CreatePrototype(pose, imageProfile);
             stage = ExperienceStage.Placed;
             SetPlaneVisibility(false);
             ApplyFilter();
@@ -136,7 +137,7 @@ namespace RuinAR.AR
         {
             stage = ExperienceStage.Analyzing;
             analysisProgress = 0f;
-            message = $"Demoanalyse af {selectedImageName}";
+            message = "Regelbaseret demoanalyse af valgt billede";
 
             const float duration = 3f;
             while (analysisProgress < 1f)
@@ -145,8 +146,9 @@ namespace RuinAR.AR
                 yield return null;
             }
 
+            imageProfile = ProceduralReconstructionFactory.AnalyzePrototypeImage(selectedImage);
             stage = ExperienceStage.Ready;
-            message = "Demoanalyse klar · Rekonstruktionen er ikke fagligt verificeret.";
+            message = $"Demoresultat: {imageProfile.DisplayName} · billedafhængig testmodel";
         }
 
 #if UNITY_EDITOR
