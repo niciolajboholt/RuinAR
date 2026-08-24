@@ -43,13 +43,13 @@ namespace RuinAR.AR
             CreateColumn(root.transform, "Sandsynlig søjle venstre", new Vector3(-1.25f, 1.45f, -0.35f));
             CreateColumn(root.transform, "Sandsynlig søjle højre", new Vector3(1.25f, 1.45f, -0.35f));
 
-            var leftRoof = CreatePart(root.transform, "AI-genereret vestligt tagfald", new Vector3(-1.5f, 3.75f, 0f),
-                new Vector3(3.5f, 0.18f, 5.4f), AiTimber, EvidenceStatus.AiGenerated);
-            leftRoof.transform.localRotation = Quaternion.Euler(0f, 0f, -25f);
+            var leftRoof = CreatePart(root.transform, "AI-genereret vestligt tagfald", new Vector3(-1.45f, 3.6f, 0f),
+                new Vector3(3.25f, 0.16f, 5.25f), AiTimber, EvidenceStatus.AiGenerated);
+            leftRoof.transform.localRotation = Quaternion.Euler(0f, 0f, 25f);
 
-            var rightRoof = CreatePart(root.transform, "AI-genereret østligt tagfald", new Vector3(1.5f, 3.75f, 0f),
-                new Vector3(3.5f, 0.18f, 5.4f), AiTimber, EvidenceStatus.AiGenerated);
-            rightRoof.transform.localRotation = Quaternion.Euler(0f, 0f, 25f);
+            var rightRoof = CreatePart(root.transform, "AI-genereret østligt tagfald", new Vector3(1.45f, 3.6f, 0f),
+                new Vector3(3.25f, 0.16f, 5.25f), AiTimber, EvidenceStatus.AiGenerated);
+            rightRoof.transform.localRotation = Quaternion.Euler(0f, 0f, -25f);
 
             return root;
         }
