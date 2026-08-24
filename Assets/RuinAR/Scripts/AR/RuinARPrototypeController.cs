@@ -18,6 +18,10 @@ namespace RuinAR.AR
         private EvidenceStatus? activeFilter;
         private string message = "Bevæg telefonen langsomt, og tryk på en registreret flade.";
 
+#if UNITY_EDITOR
+        private float desktopRotation;
+#endif
+
         public void Configure(ARRaycastManager raycasts, ARPlaneManager planes, Camera camera)
         {
             raycastManager = raycasts;
@@ -33,6 +37,9 @@ namespace RuinAR.AR
 
         private void Update()
         {
+#if UNITY_EDITOR
+            UpdateDesktopPreview();
+#endif
             if (reconstruction != null || raycastManager == null)
                 return;
 
@@ -76,10 +83,28 @@ namespace RuinAR.AR
             if (forward.sqrMagnitude < 0.1f)
                 forward = Vector3.forward;
 
-            var position = arCamera.transform.position + forward * 4f;
-            position.y = arCamera.transform.position.y - 1.4f;
-            PlaceAt(new Pose(position, Quaternion.LookRotation(forward, Vector3.up)));
+            var position = arCamera.transform.position + forward * 8f;
+            position.y = 0f;
+            PlaceAt(new Pose(position, Quaternion.identity));
+#if UNITY_EDITOR
+            message = "Desktopdemo: Brug piletasterne til at dreje ruinen. Farverne viser dokumentationsniveau.";
+#endif
         }
+
+#if UNITY_EDITOR
+        private void UpdateDesktopPreview()
+        {
+            if (reconstruction == null)
+                return;
+
+            var turn = Input.GetAxisRaw("Horizontal");
+            if (Mathf.Abs(turn) < 0.01f)
+                return;
+
+            desktopRotation += turn * 55f * Time.deltaTime;
+            reconstruction.transform.rotation = Quaternion.Euler(0f, desktopRotation, 0f);
+        }
+#endif
 
         private void ResetPlacement()
         {
@@ -141,12 +166,14 @@ namespace RuinAR.AR
                 return;
             }
 
-            var third = (panelWidth - 2f * margin) / 3f;
-            if (GUI.Button(new Rect(margin, y, third, buttonHeight), "Alle"))
+            var quarter = (panelWidth - 3f * margin) / 4f;
+            if (GUI.Button(new Rect(margin, y, quarter, buttonHeight), "Alle"))
                 SetFilter(null);
-            if (GUI.Button(new Rect(margin + third + margin, y, third, buttonHeight), "Dokumenteret"))
+            if (GUI.Button(new Rect(margin + quarter + margin, y, quarter, buttonHeight), "Dokumenteret"))
                 SetFilter(EvidenceStatus.Documented);
-            if (GUI.Button(new Rect(margin + 2f * (third + margin), y, third, buttonHeight), "AI"))
+            if (GUI.Button(new Rect(margin + 2f * (quarter + margin), y, quarter, buttonHeight), "Sandsynlig"))
+                SetFilter(EvidenceStatus.Probable);
+            if (GUI.Button(new Rect(margin + 3f * (quarter + margin), y, quarter, buttonHeight), "AI"))
                 SetFilter(EvidenceStatus.AiGenerated);
 
             y += buttonHeight + margin;
