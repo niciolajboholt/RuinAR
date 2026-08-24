@@ -5,7 +5,7 @@ namespace RuinAR.Core
 {
     public static class OfflineRuinPackageStore
     {
-        private const string FileName = "prototype-ruin.json";
+        private const string FileName = "kalo-slotsruin.json";
 
         public static string PackagePath => Path.Combine(Application.persistentDataPath, FileName);
 
