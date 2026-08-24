@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -24,8 +25,8 @@ namespace RuinAR.Editor
 
             PlayerSettings.companyName = "RuinAR";
             PlayerSettings.productName = "RuinAR Prototype";
-            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, "dk.ruinar.prototype");
-            PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.iOS, "dk.ruinar.prototype");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "dk.ruinar.prototype");
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, "dk.ruinar.prototype");
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
 
