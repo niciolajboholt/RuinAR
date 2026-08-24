@@ -26,12 +26,11 @@ namespace RuinAR.AR
         private RuinSiteData site;
         private GameObject reconstruction;
         private Texture2D selectedImage;
-        private RuinVisualProfile imageProfile = RuinVisualProfile.Default;
         private string selectedImageName;
         private ExperienceStage stage = ExperienceStage.ChooseImage;
         private float analysisProgress;
         private EvidenceStatus? activeFilter;
-        private string message = "Vælg et billede af den ruin, du vil undersøge.";
+        private string message = "Vælg et foto af Kalø Slotsruin.";
 
 #if UNITY_EDITOR
         private float desktopRotation;
@@ -83,7 +82,7 @@ namespace RuinAR.AR
 
         private void PlaceAt(Pose pose)
         {
-            reconstruction = ProceduralReconstructionFactory.CreatePrototype(pose, imageProfile);
+            reconstruction = ProceduralReconstructionFactory.CreatePrototype(pose);
             stage = ExperienceStage.Placed;
             SetPlaneVisibility(false);
             ApplyFilter();
@@ -112,7 +111,7 @@ namespace RuinAR.AR
         {
 #if UNITY_EDITOR
             var path = UnityEditor.EditorUtility.OpenFilePanelWithFilters(
-                "Vælg et billede af en ruin",
+                "Vælg et foto af Kalø Slotsruin",
                 string.Empty,
                 new[] { "Billeder", "png,jpg,jpeg" });
 
@@ -137,7 +136,7 @@ namespace RuinAR.AR
         {
             stage = ExperienceStage.Analyzing;
             analysisProgress = 0f;
-            message = "Regelbaseret demoanalyse af valgt billede";
+            message = "Forbereder den kildebaserede Kalø-model";
 
             const float duration = 3f;
             while (analysisProgress < 1f)
@@ -146,9 +145,8 @@ namespace RuinAR.AR
                 yield return null;
             }
 
-            imageProfile = ProceduralReconstructionFactory.AnalyzePrototypeImage(selectedImage);
             stage = ExperienceStage.Ready;
-            message = $"Demoresultat: {imageProfile.DisplayName} · billedafhængig testmodel";
+            message = "Kalø-model klar · Tage og øvre dele er fortolkninger";
         }
 
 #if UNITY_EDITOR
@@ -230,7 +228,7 @@ namespace RuinAR.AR
             {
                 if (GUI.Button(new Rect(margin, y, panelWidth, buttonHeight),
 #if UNITY_EDITOR
-                        "Vælg ruinbillede"
+                        "Vælg foto af Kalø"
 #else
                         "Analysér kamerabillede"
 #endif
