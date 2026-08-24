@@ -30,9 +30,10 @@ namespace RuinAR.AR
             camera.clearFlags = CameraClearFlags.SolidColor;
             camera.backgroundColor = new Color(0.07f, 0.10f, 0.14f);
             camera.nearClipPlane = 0.05f;
+            camera.fieldOfView = 65f;
 #if UNITY_EDITOR
-            cameraObject.transform.localPosition = new Vector3(0f, 2.4f, -6f);
-            cameraObject.transform.localRotation = Quaternion.Euler(8f, 0f, 0f);
+            cameraObject.transform.localPosition = new Vector3(0f, 3.1f, -7f);
+            cameraObject.transform.localRotation = Quaternion.Euler(12f, 0f, 0f);
 #endif
             cameraObject.AddComponent<AudioListener>();
             cameraObject.AddComponent<ARCameraManager>();
