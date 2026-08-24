@@ -28,8 +28,12 @@ namespace RuinAR.AR
             cameraObject.transform.SetParent(cameraOffset.transform, false);
             var camera = cameraObject.AddComponent<Camera>();
             camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = Color.black;
+            camera.backgroundColor = new Color(0.07f, 0.10f, 0.14f);
             camera.nearClipPlane = 0.05f;
+#if UNITY_EDITOR
+            cameraObject.transform.localPosition = new Vector3(0f, 2.4f, -6f);
+            cameraObject.transform.localRotation = Quaternion.Euler(8f, 0f, 0f);
+#endif
             cameraObject.AddComponent<AudioListener>();
             cameraObject.AddComponent<ARCameraManager>();
             cameraObject.AddComponent<ARCameraBackground>();
@@ -41,6 +45,12 @@ namespace RuinAR.AR
             var planeManager = originObject.AddComponent<ARPlaneManager>();
             planeManager.requestedDetectionMode = PlaneDetectionMode.Horizontal | PlaneDetectionMode.Vertical;
             var raycastManager = originObject.AddComponent<ARRaycastManager>();
+
+            var lightObject = new GameObject("Preview Sun");
+            var previewLight = lightObject.AddComponent<Light>();
+            previewLight.type = LightType.Directional;
+            previewLight.intensity = 1.2f;
+            lightObject.transform.rotation = Quaternion.Euler(48f, -35f, 0f);
 
             var controller = new GameObject("RuinAR Prototype Controller").AddComponent<RuinARPrototypeController>();
             controller.Configure(raycastManager, planeManager, camera);
