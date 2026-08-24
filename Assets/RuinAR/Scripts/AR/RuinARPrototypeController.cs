@@ -83,11 +83,12 @@ namespace RuinAR.AR
             if (forward.sqrMagnitude < 0.1f)
                 forward = Vector3.forward;
 
-            var position = arCamera.transform.position + forward * 8f;
+            var position = arCamera.transform.position + forward * 11.5f;
             position.y = 0f;
-            PlaceAt(new Pose(position, Quaternion.identity));
+            PlaceAt(new Pose(position, Quaternion.Euler(0f, -18f, 0f)));
 #if UNITY_EDITOR
-            message = "Desktopdemo: Brug piletasterne til at dreje ruinen. Farverne viser dokumentationsniveau.";
+            desktopRotation = -18f;
+            message = "Desktopdemo · Piletaster: drej ruinen.";
 #endif
         }
 
@@ -145,7 +146,7 @@ namespace RuinAR.AR
         private void OnGUI()
         {
             var scale = Mathf.Max(1f, Screen.dpi / 180f);
-            var panelWidth = Mathf.Min(Screen.width - 24f * scale, 480f * scale);
+            var panelWidth = Mathf.Min(Screen.width - 24f * scale, 460f * scale);
             var buttonHeight = 44f * scale;
             var margin = 12f * scale;
             var style = new GUIStyle(GUI.skin.box)
@@ -155,10 +156,10 @@ namespace RuinAR.AR
                 padding = new RectOffset(14, 14, 12, 12)
             };
 
-            GUI.Box(new Rect(margin, margin, panelWidth, 116f * scale),
+            GUI.Box(new Rect(margin, margin, panelWidth, 104f * scale),
                 $"RuinAR · {site?.displayName}\n{site?.verificationLabel}\n{message}\n{locationController?.StatusMessage}", style);
 
-            var y = 140f * scale;
+            var y = 126f * scale;
             if (reconstruction == null)
             {
                 if (GUI.Button(new Rect(margin, y, panelWidth, buttonHeight), "Placér demo foran mig"))
